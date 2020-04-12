@@ -1,0 +1,99 @@
+.data
+jepNrAnt: .asciiz "Jep numrin e anetareve te vektorit (max. 5): "
+
+shtypElem: .asciiz "Shtyp elementet nje nga nje: \n"
+
+vleratEvekt: .asciiz "Vlerat e vektorit jane: \n"
+
+endl: .asciiz "\n"
+
+array: .space 1024
+
+
+
+.text
+main:
+
+    jal popullarizoVektorin
+
+    li $v0, 10
+    syscall
+
+
+popullarizoVektorin:
+    li $v0, 4
+    la $a0, jepNrAnt
+    syscall
+
+    li $v0, 5
+    syscall
+    move $t0, $v0
+
+    li $v0, 4
+    la $a0, endl
+    syscall
+
+    li $v0, 4
+    la $a0, endl
+    syscall
+
+    addi $t1, $t1, 1
+    addi $t2, $zero, 0
+
+    li $v0, 4
+    la $a0, shtypElem
+    syscall
+
+    addi $t0, $zero, 0
+
+    li $v0, 5
+    syscall
+    move $s0, $v0
+
+    sw $s0, array($t0)
+        addi $t0, $zero, 4
+
+    li $v0, 5
+    syscall
+    move $s1, $v0
+
+    sw $s1, array($t0)
+        addi $t0, $zero, 4
+
+    li $v0, 5
+    syscall
+    move $s2, $v0
+
+    sw $s2, array($t0)
+        addi $t0, $zero, 4
+
+    li $v0, 5
+    syscall
+    move $s3, $v0
+
+    sw $s3, array($t0)
+        addi $t0, $zero, 4
+
+    li $v0, 5
+    syscall
+    move $s4, $v0
+
+    sw $s4, array($t0)
+        addi $t0, $zero, 4
+    
+
+    jr $ra
+
+
+#unazavlerave:
+
+
+
+
+
+#unazakalimit:
+
+
+
+
+

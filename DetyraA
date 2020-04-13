@@ -1,33 +1,56 @@
 .data
+array: .space 20
 jepNrAnt: .asciiz "Jep numrin e anetareve te vektorit (max. 5): "
-
 shtypElem: .asciiz "Shtyp elementet nje nga nje: \n"
-
 vleratEvekt: .asciiz "Vlerat e vektorit jane: \n"
-
 endl: .asciiz "\n"
 
-array: .space 1024
-
-
-
 .text
-main:
-
+    main:
+    la $a0, array
+    move $s0, $a0
+    addi $a1, $zero, 0  #inicializimi i n-it (pra ne a1)
+    
     jal popullarizoVektorin
 
+
+    while: beq $t6, $t0, ex
+        li $v0, 4
+        la $a0, vleratEvekt
+        syscall
+
+        lw $t7, 0($s0)
+
+        addi $t6, $t6, 4
+        
+        li $v0, 1
+        move $a0, $t7
+        syscall
+
+        li $v0, 4
+        la $a0, endl
+        syscall
+        
+        j while
+    ex:
     li $v0, 10
     syscall
 
 
 popullarizoVektorin:
+    addi $sp, $sp, -8  #e alokojme hapesiren ne stack per dy regjistra
+    sw $a0, 0($sp)      #e ruajme adresen e array ne stack
+    sw $a1, 4($sp)      #e ruajme n ne stack
+
     li $v0, 4
     la $a0, jepNrAnt
     syscall
 
-    li $v0, 5
+    li $v0, 5       #numri i anetareve i dhene nga perdoruesi
     syscall
-    move $t0, $v0
+    
+    add $v1, $zero, $v0
+    sw $v1, 4($sp) #tash ktu e ruajtem n-in e dhene nga perdoruesi ne sack pointer
 
     li $v0, 4
     la $a0, endl
@@ -37,53 +60,36 @@ popullarizoVektorin:
     la $a0, endl
     syscall
 
-    addi $t1, $t1, 1
-    addi $t2, $zero, 0
+    addi $t1, $zero, 0 #counteri
+    addi $t2, $zero, 0  #offseti
+    
+    lw $s0, 0($sp)    #po i casemi array-it dhe po e rujme ne $t3
+    lw $s1, 0($sp)
 
     li $v0, 4
     la $a0, shtypElem
     syscall
 
-    addi $t0, $zero, 0
+    loop: beq $t1, $v1, endloop
 
-    li $v0, 5
-    syscall
-    move $s0, $v0
+        li $v0, 5           # inputi perdoruesit
+        syscall
 
-    sw $s0, array($t0)
-        addi $t0, $zero, 4
+        add $s0, $s0, $t2 #ja kemi shtu offsetin adreses qe e mban array-in
+        sw $v0, 0($s0) #po e rujme ne array vleren e dhene prej perdoruesit
 
-    li $v0, 5
-    syscall
-    move $s1, $v0
+        addi $t2, $t2, 4
+        addi $t1, $t1, 1
+        j loop
 
-    sw $s1, array($t0)
-        addi $t0, $zero, 4
+    endloop:
+        jr $ra
+        
+        
 
-    li $v0, 5
-    syscall
-    move $s2, $v0
 
-    sw $s2, array($t0)
-        addi $t0, $zero, 4
 
-    li $v0, 5
-    syscall
-    move $s3, $v0
-
-    sw $s3, array($t0)
-        addi $t0, $zero, 4
-
-    li $v0, 5
-    syscall
-    move $s4, $v0
-
-    sw $s4, array($t0)
-        addi $t0, $zero, 4
-    
-
-    jr $ra
-
+        
 
 #unazavlerave:
 

@@ -2,11 +2,10 @@
 array: .space 20
 jepNrAnt: .asciiz "Jep numrin e anetareve te vektorit (max. 5): "
 shtypElem: .asciiz "Shtyp elementet nje nga nje: \n"
-vleratEvekt: .asciiz "Vlerat e vektorit jane: \n"
+vleratEvekt: .asciiz "\nVlerat e vektorit jane: \n"
 endl: .asciiz "\n"
 n: .word 0
-min: .word 0
-loc: .word 0
+
 .text
     main:
     la $a0, array
@@ -39,10 +38,6 @@ populloVektorin:
     
     move $v1, $v0   #n po e ruajme ne v1 si return value
     move $s1, $v1  #n po ruhet ne variablen e ardhur nga main $s1
-
-    li $v0, 4
-    la $a0, endl        #rresht i ri
-    syscall
 
     li $v0, 4
     la $a0, endl        #rresht i ri
@@ -87,29 +82,21 @@ unazaKalimit:
         mul $t4, $t0, $t3
         add $t5, $s0, $t4 #adresen e array po e inkrementojme per vleren e $t4, e cila eshte p * 4
 
-        lw $t1, 0($t5) #a[p]
+        lw $t1, 0($t5) #$t1 --> min = a[p]
         move $s6, $t1  #a[p]
         
-        la $a2, min # e rujme ne .data min
-        sw $t1, 0($a2)
-
-        la $a2, loc # e rujme ne .data loc
-        sw $t0, 0($a2) #loc = p
-
+        move $t2, $t0 #loc = p
         move $a2, $t0 #e dergojme p si parameter
 
         jal unazavlerave
-
-        lw $t1, min     #min ose a[loc]
-        lw $t2, loc
 
         move $t8, $s6   #temp = a[p]
         
         li $t3, 4
         mul $t4, $t0, $t3 #$t3 e kemi deklaru ma nalt si 4, se na duhet per me nxjerr elemente nga array(si shumefisha te 4)
         add $t5, $s0, $t4 #qeshtu e inkrementojme adresen per casjen e elementeve te array
-        sw $t1, 0($t5)  #a[p] = a[loc]  ose a[p] = min
-
+        sw $t1, 0($t5)  #a[p] = a[loc]  ose  a[p] = min se loc po na tregon indeksin ku eshte gjet ajo minimalja
+                        # dmth $t1 eshte a[loc] ne kete pike
 
         mul $t4, $t2, $t3
         add $t5, $s0, $t4 #loc si shumefish i 4
@@ -123,6 +110,11 @@ unazaKalimit:
         move $s0, $a0
         lw $t0, n
         li $t1, 0
+        
+        li $v0, 4
+        la $a0, vleratEvekt  #text print
+        syscall
+        
     print:
         beq $t1, $t0, backHOME
         
@@ -139,6 +131,7 @@ unazaKalimit:
         j print
     backHOME:
     lw $ra, 0($sp) #po e rikthejme adresen kthyese te ketij funksioni nga stack-u
+    addi $sp, $sp, 4
     jr $ra
 
 
@@ -146,27 +139,25 @@ unazavlerave:
     move $s3, $a0 #adresa e array
     move $s4, $a1 #n 
     move $s5, $a2 #p
-    
+    # $t1 eshte min
+    # $t2 eshte loc
 
     addi $t6, $s5, 0 #p + 1 = k
 
     loop2:
-        beq $t6, $s4, endloop2
-        lw $t1, min
+        beq $t6, $s4, endloop2   # $t6 eshte k, $s4 eshte n
+        
         li $t3, 4
-        mul $t4, $t6, $t3 #k * 4
-        add $t5, $s3, $t4   #offset
+        mul $t4, $t6, $t3 # k * 4
+        add $t5, $s3, $t4   # offset
+        lw $t7, 0($t5)  # a[k]
 
-        lw $t7, 0($t5)  #po e marrim nje anetar nga array si min
-
-        blt $t1, $t7, pass #if min>a[k]
-            la $a3, min 
-            sw $t7, 0($a3)
-            la $a3, loc
-            sw $t6, 0($a3)
+        blt $t1, $t7, pass  # if min>a[k]
+            move $t1, $t7   # min = a[k]
+            move $t2, $t6   # loc = k
         
         pass:
-            addi $t6, $t6, 1 #po edhe nese nuk gjindet su bo nomi, kalom ne iterimin tjt
+            addi $t6, $t6, 1 # po edhe nese nuk gjindet su bo nomi, kalojm ne iterimin tjt
             j loop2
     endloop2:
         jr $ra

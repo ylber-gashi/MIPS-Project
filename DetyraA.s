@@ -144,7 +144,7 @@ unazavlerave:
     move $s4, $a2 #p
     # $t1 eshte min
     # $t2 eshte loc
-
+    
     addi $t7, $s4, 1 #k = p+1
 
     loop2:

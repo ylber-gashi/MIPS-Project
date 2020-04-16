@@ -1,10 +1,10 @@
 .data
 array: .space 20
+n: .word 0
 jepNrAnt: .asciiz "Jep numrin e anetareve te vektorit (max. 5): "
 shtypElem: .asciiz "Shtyp elementet nje nga nje: \n"
 vleratEvekt: .asciiz "\nVlerat e vektorit jane: \n"
 endl: .asciiz "\n"
-n: .word 0
 
 .text
     main:
@@ -90,75 +90,79 @@ unazaKalimit:
 
         jal unazavlerave
 
-        move $t8, $s6   #temp = a[p]
+        move $t6, $s6   #temp = a[p]
         
         li $t3, 4
         mul $t4, $t0, $t3 #$t3 e kemi deklaru ma nalt si 4, se na duhet per me nxjerr elemente nga array(si shumefisha te 4)
         add $t5, $s0, $t4 #qeshtu e inkrementojme adresen per casjen e elementeve te array
-        sw $t1, 0($t5)  #a[p] = a[loc]  ose  a[p] = min se loc po na tregon indeksin ku eshte gjet ajo minimalja
+        sw $t1, 0($t5)  #a[p] = a[loc]  ose  thene ndryshe ne a[p] po e ruajme minimumin e rezultuar nga funksioni unazaVlerave
                         # dmth $t1 eshte a[loc] ne kete pike
 
-        mul $t4, $t2, $t3
-        add $t5, $s0, $t4 #loc si shumefish i 4
-        sw $t8, 0($t5) #a[loc] = temp
+        mul $t3, $t2, $t3
+        add $t5, $s0, $t3 #loc si shumefish i 4, passi po i qasemi array-it
+        sw $t6, 0($t5) #a[loc] = temp
 
         addi $t0, $t0, 1
         j loop1
 
     endloop1:
         la $a0, array
-        move $s0, $a0
         lw $t0, n
-        li $t1, 0
-        
+        move $s0, $a0
+  
         li $v0, 4
         la $a0, vleratEvekt  #text print
         syscall
         
-    print:
-        beq $t1, $t0, backHOME
-        
-        li $v0, 1
-        lw $a0, 0($s0)
-        syscall
-        
-        li $v0, 4
-        la $a0, endl 
-        syscall
-
-        addi $s0, $s0, 4
-        addi $t1, $t1, 1
-        j print
+#-------------------------------------------------------------------------------
+        li $t1, 0                       #
+    printoVektorin:                     #
+        beq $t1, $t0, backHOME          #
+                                        #  
+        li $v0, 1                       #
+        lw $a0, 0($s0)                  #
+        syscall                         #
+                                        #       Printimi i vektorit
+        li $v0, 4                       #
+        la $a0, endl                    #
+        syscall                         #
+                                        #
+        addi $s0, $s0, 4                #
+        addi $t1, $t1, 1                #
+        j printoVektorin                #
+#--------------------------------------------------------------------------------
     backHOME:
-    lw $ra, 0($sp) #po e rikthejme adresen kthyese te ketij funksioni nga stack-u
-    addi $sp, $sp, 4
-    jr $ra
+        lw $ra, 0($sp)      #po e rikthejme adresen kthyese te ketij funksioni nga stack-u
+        addi $sp, $sp, 4
+        jr $ra
 
-
+    
+#Funksioni UNAZA E VLERAVE
 unazavlerave:
-    move $s3, $a0 #adresa e array
-    move $s4, $a1 #n 
-    move $s5, $a2 #p
+    move $s2, $a0 #adresa e array
+    move $s3, $a1 #n 
+    move $s4, $a2 #p
     # $t1 eshte min
     # $t2 eshte loc
 
-    addi $t6, $s5, 0 #p + 1 = k
+    addi $t7, $s4, 1 #k = p+1
 
     loop2:
-        beq $t6, $s4, endloop2   # $t6 eshte k, $s4 eshte n
+        beq $t7, $s3, endloop2   # $t7 eshte k, $s3 eshte n
         
         li $t3, 4
-        mul $t4, $t6, $t3 # k * 4
-        add $t5, $s3, $t4   # offset
-        lw $t7, 0($t5)  # a[k]
+        mul $t4, $t7, $t3   # k * 4
+        add $t5, $s2, $t4   # offset
+        lw $t6, 0($t5)      # a[k]
 
-        blt $t1, $t7, pass  # if min>a[k]
-            move $t1, $t7   # min = a[k]
-            move $t2, $t6   # loc = k
+        blt $t1, $t6, goto  # if min>a[k]
+            move $t1, $t6   # min = a[k]
+            move $t2, $t7   # loc = k
         
-        pass:
-            addi $t6, $t6, 1 # po edhe nese nuk gjindet su bo nomi, kalojm ne iterimin tjt
+        goto:
+            addi $t7, $t7, 1 # po edhe nese nuk gjindet su bo nomi, kalojm ne iterimin tjt
             j loop2
+
     endloop2:
         jr $ra
     

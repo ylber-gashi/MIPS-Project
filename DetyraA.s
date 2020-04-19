@@ -34,7 +34,7 @@ populloVektorin:
     la $a2, n 
     sw $v0, 0($a2)                # n e dhene nga perdoruesi e ruajme te .data
 
-    move $s1, $v0
+    move $s1, $v0                 # n e dhene nga inputi e vendosim edhe ne $s1
 
     li $v0, 4
     la $a0, endl                  # rresht i ri
@@ -47,7 +47,7 @@ populloVektorin:
 #-------------------------------------------------------------------------------
     li $t1, 1                     # int i = 1
     ruaj: 
-        bgt $t1, $s1, gotoMain
+        bgt $t1, $s1, gotoMain    # $t1 eshte i, ndersa $s1 eshte n (for loop)
 
         li $v0, 5                 # inputi perdoruesit si numer
         syscall
@@ -62,6 +62,8 @@ populloVektorin:
     gotoMain:
         jr $ra
         
+
+
 
 #Funksioni UNAZA E KALIMIT
 unazaKalimit:  
@@ -134,6 +136,8 @@ unazaKalimit:
         jr $ra
 
     
+
+
 #Funksioni UNAZA E VLERAVE
 unazavlerave:
     move $s2, $a0                 # adresa e array
